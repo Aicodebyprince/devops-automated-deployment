@@ -5,12 +5,6 @@
 
   tasks:
 
-    - name: Ensure Docker is installed
-      apt:
-        name: docker.io
-        state: present
-        update_cache: yes
-
     - name: Stop old container
       shell: docker stop devops-container || true
 
@@ -27,10 +21,25 @@
         path: /home/ubuntu/devops-app
         state: directory
 
-    - name: Copy application files
+    - name: Copy Dockerfile
       copy:
-        src: ../
-        dest: /home/ubuntu/devops-app/
+        src: ../Dockerfile
+        dest: /home/ubuntu/devops-app/Dockerfile
+
+    - name: Copy index.html
+      copy:
+        src: ../index.html
+        dest: /home/ubuntu/devops-app/index.html
+
+    - name: Copy style.css
+      copy:
+        src: ../style.css
+        dest: /home/ubuntu/devops-app/style.css
+
+    - name: Copy script.js
+      copy:
+        src: ../script.js
+        dest: /home/ubuntu/devops-app/script.js
 
     - name: Build Docker Image
       shell: docker build -t devops-website:latest /home/ubuntu/devops-app

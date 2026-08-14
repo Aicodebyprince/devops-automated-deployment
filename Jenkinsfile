@@ -19,37 +19,27 @@ pipeline {
             }
         }
 
-        stage('Remove Old Container') {
-            steps {
-                bat '''
-                "%DOCKER%" stop devops-container || exit /b 0
-                "%DOCKER%" rm devops-container || exit /b 0
-                '''
-            }
-        }
-
-        stage('Run Container') {
-            steps {
-                bat "\"%DOCKER%\" run -d -p 9091:80 --name devops-container devops-website:v2"
-            }
-        }
-
-        stage('Verify Deployment') {
-            steps {
-                bat "\"%DOCKER%\" ps"
-            }
-        }
-
         stage('Verify Image') {
             steps {
                 bat "\"%DOCKER%\" images"
+            }
+        }
+
+        stage('Deploy to EC2 via Ansible') {
+            steps {
+                bat '''
+                wsl bash -c "
+                cd /mnt/c/Users/princ/OneDrive/Desktop/Deveops_assignment &&
+                ansible-playbook -i ansible/inventory.ini ansible/deploy.yml --private-key ~/.ssh/devops-key.pem
+                "
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'Deployment Successful!'
+            echo 'GitHub → Jenkins → Ansible → EC2 Deployment Successful!'
         }
 
         failure {
