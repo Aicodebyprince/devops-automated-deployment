@@ -1,0 +1,46 @@
+---
+- name: Deploy DevOps Website
+  hosts: web
+  become: yes
+
+  tasks:
+
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Stop old container
+      shell: docker stop devops-container || true
+
+    - name: Remove old container
+      shell: docker rm devops-container || true
+
+    - name: Remove old app folder
+      file:
+        path: /home/ubuntu/devops-app
+        state: absent
+
+    - name: Create app folder
+      file:
+        path: /home/ubuntu/devops-app
+        state: directory
+
+    - name: Copy application files
+      copy:
+        src: ../
+        dest: /home/ubuntu/devops-app/
+
+    - name: Build Docker Image
+      shell: docker build -t devops-website:latest /home/ubuntu/devops-app
+
+    - name: Run New Container
+      shell: docker run -d -p 80:80 --name devops-container devops-website:latest
+
+    - name: Verify Container
+      shell: docker ps
+      register: docker_output
+
+    - debug:
+        var: docker_output.stdout_lines
