@@ -1,55 +1,24 @@
 ---
-- name: Deploy DevOps Website
-  hosts: web
+- hosts: web
   become: yes
 
   tasks:
 
-    - name: Stop old container
-      shell: docker stop devops-container || true
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
 
-    - name: Remove old container
-      shell: docker rm devops-container || true
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
 
-    - name: Remove old app folder
-      file:
-        path: /home/ubuntu/devops-app
-        state: absent
-
-    - name: Create app folder
-      file:
-        path: /home/ubuntu/devops-app
-        state: directory
-
-    - name: Copy Dockerfile
-      copy:
-        src: ../Dockerfile
-        dest: /home/ubuntu/devops-app/Dockerfile
-
-    - name: Copy index.html
-      copy:
-        src: ../index.html
-        dest: /home/ubuntu/devops-app/index.html
-
-    - name: Copy style.css
-      copy:
-        src: ../style.css
-        dest: /home/ubuntu/devops-app/style.css
-
-    - name: Copy script.js
-      copy:
-        src: ../script.js
-        dest: /home/ubuntu/devops-app/script.js
-
-    - name: Build Docker Image
-      shell: docker build -t devops-website:latest /home/ubuntu/devops-app
-
-    - name: Run New Container
-      shell: docker run -d -p 80:80 --name devops-container devops-website:latest
-
-    - name: Verify Container
-      shell: docker ps
-      register: docker_output
-
-    - debug:
-        var: docker_output.stdout_lines
+    - name: Run Website Container
+      docker_container:
+        name: devops-container
+        image: nginx
+        state: started
+        ports:
+          - "80:80"

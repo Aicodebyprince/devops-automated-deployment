@@ -8,6 +8,12 @@ pipeline {
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Check Docker') {
             steps {
                 bat "\"%DOCKER%\" --version"
@@ -46,8 +52,7 @@ pipeline {
                 sshagent(credentials: ['ec2-key']) {
 
                     bat """
-                    ssh -o StrictHostKeyChecking=no ubuntu@%SERVER_IP% ^
-                    "sudo docker ps"
+                    ssh ubuntu@%SERVER_IP% "sudo docker ps"
                     """
 
                 }
@@ -56,6 +61,7 @@ pipeline {
     }
 
     post {
+
         success {
             echo 'Deployment Successful!'
         }
