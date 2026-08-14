@@ -5,7 +5,7 @@ pipeline {
         DOCKER = 'C:\\Users\\princ\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe'
         SSH = 'C:\\Windows\\System32\\OpenSSH\\ssh.exe'
         SERVER_IP = '34.207.90.88'
-        SSH_KEY = 'C:\\Users\\princ\\.ssh\\devops-key.pem'
+        SSH_KEY = 'C:\\JenkinsKeys\\devops-key.pem'
     }
 
     stages {
